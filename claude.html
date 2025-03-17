@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun Sayang! 🎂</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.0.5/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            transition: background 0.5s ease-in-out;
+        }
+        .hidden { opacity: 0; }
+        .gallery {
+            display: flex;
+            gap: 15px;
+            width: 90%;
+            max-width: 800px;
+            padding: 15px;
+            margin-top: 20px;
+            overflow-x: auto;
+            justify-content: flex-start;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+        }
+        .gallery::-webkit-scrollbar {
+            display: none;
+        }
+        .gallery img {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.4s ease-in-out;
+            cursor: pointer;
+        }
+        .gallery img:hover {
+            transform: scale(1.1) rotateY(15deg);
+        }
+        .hidden-message {
+            display: none;
+            max-width: 80%;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .message-item {
+            font-size: 18px;
+            margin: 10px 0;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .mode-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: black;
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out, transform 0.2s;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .mode-switch:hover {
+            background: yellow;
+            transform: scale(1.1);
+        }
+        .dark-mode {
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+        }
+        
+        /* Heart animation */
+        .heart-container {
+            position: fixed;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .heart {
+            background-color: #ff2a75;
+            width: 30px;
+            height: 30px;
+            position: relative;
+            transform: rotate(45deg);
+            animation: heartbeat 1.2s infinite;
+            box-shadow: 0 0 15px rgba(255, 42, 117, 0.5);
+        }
+        
+        .heart:before,
+        .heart:after {
+            content: "";
+            background-color: #ff2a75;
+            border-radius: 50%;
+            height: 30px;
+            position: absolute;
+            width: 30px;
+        }
+        
+        .heart:before {
+            top: -15px;
+            left: 0;
+        }
+        
+        .heart:after {
+            left: -15px;
+            top: 0;
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: rotate(45deg) scale(0.8); }
+            5% { transform: rotate(45deg) scale(0.9); }
+            10% { transform: rotate(45deg) scale(0.8); }
+            15% { transform: rotate(45deg) scale(1); }
+            50% { transform: rotate(45deg) scale(0.8); }
+            100% { transform: rotate(45deg) scale(0.8); }
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        button {
+            transition: transform 0.2s, box-shadow 0.2s;
+            outline: none;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem !important;
+            }
+            
+            .gallery img {
+                width: 120px;
+                height: 120px;
+            }
+        }
+        
+        .floating-hearts {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-heart {
+            position: absolute;
+            background: rgba(255, 42, 117, 0.6);
+            width: 15px;
+            height: 15px;
+            transform: rotate(45deg);
+            animation: float 10s ease-in infinite;
+        }
+        
+        .floating-heart:before,
+        .floating-heart:after {
+            content: "";
+            background: rgba(255, 42, 117, 0.6);
+            border-radius: 50%;
+            height: 15px;
+            position: absolute;
+            width: 15px;
+        }
+        
+        .floating-heart:before {
+            top: -7.5px;
+            left: 0;
+        }
+        
+        .floating-heart:after {
+            left: -7.5px;
+            top: 0;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: rotate(45deg) translateY(0) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: rotate(45deg) translateY(-100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+        
+        /* Modal untuk memperbesar gambar */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            overflow: auto;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+            margin: auto;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+            border-radius: 8px;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #f1f1f1;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="mode-switch" onclick="toggleMode()">🌙</button>
+    
+    <div class="main-content">
+        <h1 class="text-6xl font-extrabold text-white mb-4 hidden" id="title">Selamat Ulang Tahun, Sayang! 🎂🎉</h1>
+        <p class="text-xl text-white hidden" id="message">Aku sangat bersyukur memilikimu. Semoga harimu penuh kebahagiaan dan cinta 💖</p>
+    
+        <div class="button-container">
+            <button onclick="playMusic()" class="px-6 py-3 bg-white text-pink-500 font-bold rounded-lg shadow-md" id="musicBtn">Putar Musik 🎶</button>
+            <button onclick="showSurprise()" class="px-6 py-3 bg-yellow-400 text-white font-bold rounded-lg shadow-md">Lihat Kejutan 🎁</button>
+            <button onclick="showFloatingHearts()" class="px-6 py-3 bg-pink-400 text-white font-bold rounded-lg shadow-md">Hujan Cinta 💕</button>
+        </div>
+    
+        <div class="hidden-message" id="hidden-message">
+            <p class="message-item" id="msg1">Aku mencintaimu lebih dari yang bisa kuungkapkan ❤️</p>
+            <p class="message-item" id="msg2">Setiap hari bersamamu adalah hadiah terindah dalam hidupku 🌹</p>
+            <p class="message-item" id="msg3">Kamu adalah alasan di balik senyumku setiap pagi ☀️</p>
+            <p class="message-item" id="msg4">Semoga tahun ini membawa lebih banyak kebahagiaan untukmu, sayang 💕</p>
+            <p class="message-item" id="msg5">Di hari spesialmu, aku berjanji akan selalu ada untukmu 🤗</p>
+        </div>
+    
+        <audio id="bg-music" src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" loop></audio>
+    
+        <div class="gallery">
+            <img src="baby.jpg" alt="Kenangan 1" loading="lazy" onclick="enlargeImage(this)">
+            <img src="ni.jpg" alt="Kenangan 2" loading="lazy" onclick="enlargeImage(this)">
+            <img src="ini.jpg" alt="Kenangan 3" loading="lazy" onclick="enlargeImage(this)">
+            <img src="su.jpg" alt="Kenangan 4" loading="lazy" onclick="enlargeImage(this)">
+            <img src="ye.jpg" alt="Kenangan 5" loading="lazy" onclick="enlargeImage(this)">
+            <img src="gra.jpg" alt="Kenangan 7" loading="lazy" onclick="enlargeImage(this)">
+            <img src="bisi.jpg" alt="Kenangan 8" loading="lazy" onclick="enlargeImage(this)">
+        </div>
+    </div>
+    
+    <!-- Jantung yang berdetak -->
+    <div class="heart-container">
+        <div class="heart"></div>
+    </div>
+    
+    <!-- Container untuk floating hearts -->
+    <div class="floating-hearts" id="floating-hearts"></div>
+    
+    <!-- Modal untuk memperbesar gambar -->
+    <div class="modal" id="imageModal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="enlargedImg">
+    </div>
+
+    <script>
+        // Animasi judul dan pesan pembuka
+        gsap.to("#title", { opacity: 1, duration: 1.5, y: -20, ease: "power2.out" });
+        gsap.to("#message", { opacity: 1, duration: 2, delay: 1, y: -10, ease: "power2.out" });
+
+        // Cek dan tangani masalah audio
+        let music = document.getElementById("bg-music");
+        music.volume = 0.5; // Atur volume menjadi 50%
+        let isPlaying = false;
+        
+        function playMusic() {
+            try {
+                let musicBtn = document.getElementById("musicBtn");
+                if (!isPlaying) {
+                    music.play().then(() => {
+                        isPlaying = true;
+                        musicBtn.textContent = "Hentikan Musik 🎵";
+                        launchConfetti();
+                    }).catch(err => {
+                        console.error("Gagal memutar musik:", err);
+                        alert("Gagal memutar musik. Coba klik lagi!");
+                    });
+                } else {
+                    music.pause();
+                    isPlaying = false;
+                    musicBtn.textContent = "Putar Musik 🎶";
+                }
+            } catch (err) {
+                console.error("Error pada fungsi playMusic:", err);
+            }
+        }
+
+        function launchConfetti() {
+            try {
+                let count = 200, defaults = { origin: { y: 0.7 } };
+                function fire(particleRatio, opts) {
+                    confetti(Object.assign({}, defaults, opts, {
+                        particleCount: Math.floor(count * particleRatio)
+                    }));
+                }
+                fire(0.25, { spread: 60 });
+                fire(0.2, { spread: 50 });
+                fire(0.2, { spread: 40 });
+                fire(0.25, { spread: 30 });
+                fire(0.1, { spread: 20 });
+            } catch (err) {
+                console.error("Error pada fungsi launchConfetti:", err);
+            }
+        }
+
+        function showSurprise() {
+            const hiddenMessage = document.getElementById("hidden-message");
+            hiddenMessage.style.display = "block";
+            const messageItems = hiddenMessage.getElementsByClassName("message-item");
+            for (let i = 0; i < messageItems.length; i++) {
+                gsap.to(messageItems[i], { opacity: 1, duration: 1, delay: i * 0.5 });
+            }
+        }
+
+        function toggleMode() {
+            const body = document.body;
+            body.classList.toggle("dark-mode");
+            const modeSwitch = document.querySelector(".mode-switch");
+            modeSwitch.textContent = body.classList.contains("dark-mode") ? "🌞" : "🌙";
+        }
+
+        function showFloatingHearts() {
+            const floatingHeartsContainer = document.getElementById("floating-hearts");
+            for (let i = 0; i < 30; i++) {
+                createFloatingHeart(floatingHeartsContainer);
+            }
+        }
+
+        function createFloatingHeart(container) {
+            const heart = document.createElement("div");
+            heart.classList.add("floating-heart");
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = Math.random() * 3 + 2 + "s"; // 2s to 5s
+            heart.style.opacity = Math.random();
+            container.appendChild(heart);
+            setTimeout(() => {
+                heart.remove();
+            }, 5000); // Hapus hati setelah 5 detik
+        }
+
+        function enlargeImage(img) {
+            const modal = document.getElementById("imageModal");
+            const enlargedImg = document.getElementById("enlargedImg");
+            enlargedImg.src = img.src;
+            modal.style.display = "flex";
+            gsap.to(modal, { opacity: 1, duration: 0.5 });
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("imageModal");
+            modal.style.display = "none";
+            const enlargedImg = document.getElementById("enlargedImg");
+            enlargedImg.src = ""; // Reset src untuk menghindari memori
+        }
+
+        // Event listener untuk menutup modal saat mengklik di luar gambar
+        window.onclick = function(event) {
+            const modal = document.getElementById("imageModal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>
